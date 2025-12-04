@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Book Store</title>
+    <title>Home | Bookstore</title>
 </head>
 <body>
-<h1>Welcome to the Book Store 📚</h1>
-<p>This is your homepage!</p>
+
+<h2 th:text="'Welcome, ' + ${user.name} + '!'"></h2>
+
+<a href="/logout">Logout</a>
+
 </body>
 </html>
