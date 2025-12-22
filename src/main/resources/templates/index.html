@@ -1,13 +1,130 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Home | Bookstore</title>
+  <meta charset="UTF-8">
+  <title>BookStore | Read. Learn. Grow.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS (IMPORTANT: direct from /static) -->
+  <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<h2 th:text="'Welcome, ' + ${user.name} + '!'"></h2>
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <div class="logo">📚 BookStore</div>
 
-<a href="/logout">Logout</a>
+  <nav class="nav-links">
+
+    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
+    <a href="/">Home</a>
+
+    <!-- ===== GUEST ===== -->
+    <a href="/books" th:if="${session.loggedUser == null}">Books</a>
+    <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
+    <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
+
+    <!-- ===== USER ===== -->
+    <a href="/books"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Books
+    </a>
+
+    <a href="/cart"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Cart
+    </a>
+
+    <a href="/orders"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Orders
+    </a>
+
+    <!-- ===== ADMIN ===== -->
+    <a href="/admin/books"
+       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+      Admin Dashboard
+    </a>
+
+    <!-- ===== LOGOUT ===== -->
+    <a href="/logout"
+       th:if="${session.loggedUser != null}"
+       class="btn-outline">
+      Logout
+    </a>
+
+  </nav>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
+
+
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Discover Your Next <span>Favorite Book</span></h1>
+    <p>
+      Explore thousands of books from top authors.
+      Buy, read, and grow your knowledge every day.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="/books" class="btn">Browse Books</a>
+      <a href="/register" class="btn-outline">Get Started</a>
+    </div>
+  </div>
+
+  <div class="hero-image">
+    <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794"
+         alt="Books">
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="features">
+  <h2>Why Choose Our BookStore?</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>📖 Huge Collection</h3>
+      <p>Wide range of books across multiple categories.</p>
+    </div>
+
+    <div class="feature-card">
+      <h3>⚡ Fast Checkout</h3>
+      <p>Simple and smooth ordering experience.</p>
+    </div>
+
+    <div class="feature-card">
+      <h3>🔒 Secure Account</h3>
+      <p>Your data is protected with encrypted security.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta">
+  <h2>Start Reading Today</h2>
+  <p>Create your free account and explore amazing books.</p>
+  <a href="/register" class="btn">Create Account</a>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <p>© 2025 BookStore. Built with ❤️ by Shreyash Kadam</p>
+</footer>
+
+<script>
+  function toggleMenu() {
+      document.querySelector(".nav-links").classList.toggle("active");
+  }
+</script>
 
 </body>
 </html>

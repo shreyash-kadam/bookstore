@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Order History | BookStore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    .history-container {
+        padding: 40px 10%;
+    }
+
+    .history-title {
+        font-size: 32px;
+        margin-bottom: 20px;
+        color: #134e4a;
+    }
+
+    .empty-history {
+        text-align: center;
+        color: #6b7280;
+        font-size: 18px;
+        margin-top: 40px;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-info h3 {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .order-info p {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .order-amount {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f766e;
+        margin-bottom: 10px;
+        text-align: right;
+    }
+
+    .order-actions a {
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .history-container {
+            padding: 20px;
+        }
+
+        .order-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .order-amount {
+            text-align: left;
+        }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <div class="logo">📚 BookStore</div>
+
+  <nav class="nav-links">
+
+    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
+    <a href="/">Home</a>
+
+    <!-- ===== GUEST ===== -->
+    <a href="/books" th:if="${session.loggedUser == null}">Books</a>
+    <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
+    <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
+
+    <!-- ===== USER ===== -->
+    <a href="/books"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Books
+    </a>
+
+    <a href="/cart"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Cart
+    </a>
+
+    <a href="/orders"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Orders
+    </a>
+
+    <!-- ===== ADMIN ===== -->
+    <a href="/admin/books"
+       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+      Admin Dashboard
+    </a>
+
+    <!-- ===== LOGOUT ===== -->
+    <a href="/logout"
+       th:if="${session.loggedUser != null}"
+       class="btn-outline">
+      Logout
+    </a>
+
+  </nav>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
+
+
+
+<!-- ================= ORDER HISTORY ================= -->
+<div class="history-container">
+
+  <h2 class="history-title">My Orders</h2>
+
+  <!-- Empty State -->
+  <div th:if="${#lists.isEmpty(orders)}" class="empty-history">
+    You have not placed any orders yet.
+  </div>
+
+  <!-- Orders -->
+  <div th:if="${!#lists.isEmpty(orders)}">
+
+    <div class="order-card" th:each="order : ${orders}">
+
+      <div class="order-info">
+        <h3>
+          Order #
+          <span th:text="${order.id}">1</span>
+        </h3>
+
+        <p>
+          Date:
+          <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy, HH:mm')}">
+                        01 Jan 2025
+                    </span>
+        </p>
+      </div>
+
+      <div class="order-actions">
+        <div class="order-amount">
+          ₹ <span th:text="${order.totalAmount}">0</span>
+        </div>
+
+        <a th:href="@{/order/{id}(id=${order.id})}" class="btn">
+          View Details
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+      document.querySelector(".nav-links").classList.toggle("active");
+  }
+</script>
+
+</body>
+</html>

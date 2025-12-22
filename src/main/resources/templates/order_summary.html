@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Summary | BookStore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    .summary-container {
+        padding: 40px 10%;
+    }
+
+    .summary-title {
+        font-size: 32px;
+        margin-bottom: 10px;
+        color: #134e4a;
+    }
+
+    .order-id {
+        color: #6b7280;
+        margin-bottom: 30px;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-info h4 {
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    .item-info p {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .item-price {
+        font-weight: 600;
+        color: #0f766e;
+    }
+
+    .summary-footer {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .thank-you {
+        font-size: 18px;
+        color: #134e4a;
+        font-weight: 500;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+        .summary-container {
+            padding: 20px;
+        }
+
+        .summary-footer {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <div class="logo">📚 BookStore</div>
+
+  <nav class="nav-links">
+
+    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
+    <a href="/">Home</a>
+
+    <!-- ===== GUEST ===== -->
+    <a href="/books" th:if="${session.loggedUser == null}">Books</a>
+    <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
+    <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
+
+    <!-- ===== USER ===== -->
+    <a href="/books"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Books
+    </a>
+
+    <a href="/cart"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Cart
+    </a>
+
+    <a href="/orders"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Orders
+    </a>
+
+    <!-- ===== ADMIN ===== -->
+    <a href="/admin/books"
+       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+      Admin Dashboard
+    </a>
+
+    <!-- ===== LOGOUT ===== -->
+    <a href="/logout"
+       th:if="${session.loggedUser != null}"
+       class="btn-outline">
+      Logout
+    </a>
+
+  </nav>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
+
+
+<!-- ================= ORDER SUMMARY ================= -->
+<div class="summary-container">
+
+  <h2 class="summary-title">Order Summary</h2>
+  <div class="order-id">
+    Order ID: <strong th:text="${orderId}">#123</strong>
+  </div>
+
+  <div class="order-card">
+
+    <!-- Order Items -->
+    <div class="order-item" th:each="item : ${items}">
+      <div class="item-info">
+        <h4>
+          Book ID:
+          <span th:text="${item.bookId}">1</span>
+        </h4>
+        <p>
+          Quantity:
+          <span th:text="${item.quantity}">1</span>
+        </p>
+      </div>
+
+      <div class="item-price">
+        ₹ <span th:text="${item.price * item.quantity}">0</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="summary-footer">
+    <div class="thank-you">
+      Thank you for your purchase! 🎉
+    </div>
+
+    <a href="/orders" class="btn">
+      View Order History
+    </a>
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+      document.querySelector(".nav-links").classList.toggle("active");
+  }
+</script>
+
+</body>
+</html>

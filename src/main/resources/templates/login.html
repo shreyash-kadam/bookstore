@@ -1,31 +1,145 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Login</title>
+  <meta charset="UTF-8">
+  <title>Login | BookStore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/style.css">
+
+  <!-- Page specific styles -->
+  <style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+        animation: fadeIn 0.8s ease;
+    }
+
+    .auth-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 420px;
+        padding: 40px;
+        border-radius: 14px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .auth-card h2 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #0f766e;
+    }
+
+    .auth-card p {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #4b5563;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        outline: none;
+        transition: border 0.3s, box-shadow 0.3s;
+    }
+
+    .form-group input:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgba(15,118,110,0.15);
+    }
+
+    .auth-card .btn {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .error-msg {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .auth-footer a {
+        color: #0f766e;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>User Login</h2>
+<div class="auth-container">
 
-<!-- Show error message -->
-<p th:if="${error}" th:text="${error}" style="color:red"></p>
+  <div class="auth-card">
 
-<form th:action="@{/login}" method="post">
+    <h2>Welcome Back</h2>
+    <p>Login to continue to BookStore</p>
 
-    <label>Email:</label>
-    <input type="email" name="email" required>
-    <br><br>
+    <!-- Error Message -->
+    <div th:if="${error}" class="error-msg">
+      <span th:text="${error}"></span>
+    </div>
 
-    <label>Password:</label>
-    <input type="password" name="password" required>
-    <br><br>
+    <form method="post" action="/login">
 
-    <button type="submit">Login</button>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Enter your email" required>
+      </div>
 
-</form>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required>
+      </div>
 
-<br>
-<a href="/register">Don't have an account? Register</a>
+      <button type="submit" class="btn">Login</button>
+    </form>
+
+    <div class="auth-footer">
+      Don’t have an account?
+      <a href="/register">Create one</a>
+    </div>
+
+  </div>
+
+</div>
 
 </body>
 </html>
