@@ -2,63 +2,60 @@ package com.shreyashkadam.bookstore.controller;
 
 import com.shreyashkadam.bookstore.model.Book;
 import com.shreyashkadam.bookstore.model.CartItem;
+import com.shreyashkadam.bookstore.model.User;
 import com.shreyashkadam.bookstore.service.BookService;
 import com.shreyashkadam.bookstore.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
+    private final CartService cartService;
+    private final BookService bookService;
 
-    @Autowired
-    private BookService bookService;
-
-    // Add book to cart
+    // Add item to cart
     @GetMapping("/cart/add/{bookId}")
     public String addToCart(@PathVariable Long bookId, HttpSession session) {
 
-        Long userId = (Long) session.getAttribute("userId");
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
-        if (userId == null) {
-            return "redirect:/login"; // Must be logged in
-        }
-
-        cartService.addToCart(userId, bookId);
+        cartService.addToCart(user.getId(), bookId);
 
         return "redirect:/cart";
     }
 
-    // Display user's cart
+    // View cart
     @GetMapping("/cart")
-    public String viewCart(Model model, HttpSession session) {
+    public String viewCart(HttpSession session, Model model) {
 
-        Long userId = (Long) session.getAttribute("userId");
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
-        if (userId == null) {
-            return "redirect:/login";
-        }
+        List<CartItem> items = cartService.getUserCart(user.getId());
 
-        List<CartItem> cartItems = cartService.getUserCart(userId);
-
-        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("cartItems", items);
         model.addAttribute("books", bookService.getAllBooks());
-        model.addAttribute("total", cartService.calculateTotal(userId));
+        model.addAttribute("total", cartService.calculateTotal(user.getId()));
 
-        return "cart"; // cart.html template
+        return "cart"; // cart.html
     }
 
-    // Update quantity
+    // Update cart quantity
     @PostMapping("/cart/update")
     public String updateQuantity(@RequestParam Long cartItemId,
-                                 @RequestParam int quantity) {
+                                 @RequestParam int quantity,
+                                 HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
         cartService.updateQuantity(cartItemId, quantity);
 
@@ -67,7 +64,11 @@ public class CartController {
 
     // Remove item
     @GetMapping("/cart/delete/{cartItemId}")
-    public String removeItem(@PathVariable Long cartItemId) {
+    public String removeItem(@PathVariable Long cartItemId,
+                             HttpSession session) {
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
         cartService.removeItem(cartItemId);
 

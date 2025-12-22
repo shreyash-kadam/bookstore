@@ -4,30 +4,28 @@ import com.shreyashkadam.bookstore.model.Book;
 import com.shreyashkadam.bookstore.model.CartItem;
 import com.shreyashkadam.bookstore.model.Order;
 import com.shreyashkadam.bookstore.model.OrderItem;
+import com.shreyashkadam.bookstore.model.User;
 import com.shreyashkadam.bookstore.repository.BookRepository;
 import com.shreyashkadam.bookstore.repository.CartRepository;
 import com.shreyashkadam.bookstore.repository.OrderItemRepository;
 import com.shreyashkadam.bookstore.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.shreyashkadam.bookstore.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private OrderItemRepository orderItemRepository;
-
-    @Autowired
-    private CartRepository cartRepository;
-
-    @Autowired
-    private BookRepository bookRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final CartRepository cartRepository;
+    private final BookRepository bookRepository;
+    private final UserRepository userRepository;   // ✅ ADDED
+    private final EmailService emailService;       // ✅ ADDED
 
     // Place order (checkout)
     public Order placeOrder(Long userId) {
@@ -35,12 +33,12 @@ public class OrderService {
         List<CartItem> cartItems = cartRepository.findByUserId(userId);
 
         if (cartItems.isEmpty()) {
-            return null; // cannot place empty order
+            return null;
         }
 
         double total = 0;
 
-        // calculate total
+        // Calculate total
         for (CartItem item : cartItems) {
             Book book = bookRepository.findById(item.getBookId()).orElse(null);
             if (book != null) {
@@ -48,39 +46,52 @@ public class OrderService {
             }
         }
 
-        // create order
+        // Create order
         Order order = new Order();
         order.setUserId(userId);
         order.setTotalAmount(total);
         order.setOrderDate(LocalDateTime.now());
+
         order = orderRepository.save(order);
 
-        // create order items
+        // Create order items
         for (CartItem item : cartItems) {
-            Book book = bookRepository.findById(item.getBookId()).orElse(null);
 
-            if (book != null) {
-                OrderItem orderItem = new OrderItem();
-                orderItem.setOrderId(order.getId());
-                orderItem.setBookId(book.getId());
-                orderItem.setQuantity(item.getQuantity());
-                orderItem.setPrice(book.getPrice());
-                orderItemRepository.save(orderItem);
-            }
+            Book book = bookRepository.findById(item.getBookId()).orElse(null);
+            if (book == null) continue;
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrderId(order.getId());
+            orderItem.setBookId(book.getId());
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setPrice(book.getPrice());
+
+            orderItemRepository.save(orderItem);
         }
 
-        // clear cart
+        // Clear cart
         cartRepository.deleteAll(cartItems);
+
+        // ✅ FETCH USER EMAIL FROM DATABASE
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // ✅ SEND EMAIL RECEIPT
+        emailService.sendOrderReceipt(
+                user.getEmail(),
+                order,
+                orderItemRepository.findByOrderId(order.getId())
+        );
 
         return order;
     }
 
-    // Order History
+    // Get orders for a user
     public List<Order> getUserOrders(Long userId) {
         return orderRepository.findByUserId(userId);
     }
 
-    // Items inside a specific order
+    // Get items in a specific order
     public List<OrderItem> getOrderItems(Long orderId) {
         return orderItemRepository.findByOrderId(orderId);
     }

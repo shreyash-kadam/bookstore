@@ -1,44 +1,205 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Edit Book</title>
+  <meta charset="UTF-8">
+  <title>Admin | Edit Book</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    .form-container {
+        padding: 40px 10%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .form-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+        border-radius: 14px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .form-title {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: #134e4a;
+        text-align: center;
+    }
+
+    .form-subtitle {
+        text-align: center;
+        color: #6b7280;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        outline: none;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .form-actions a {
+        text-decoration: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+        .form-container {
+            padding: 20px;
+        }
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Edit Book</h2>
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <div class="logo">📚 BookStore</div>
 
-<form th:action="@{/admin/books/update}" th:object="${book}" method="post">
+  <nav class="nav-links">
 
-    <!-- Hidden ID field -->
-    <input type="hidden" th:field="*{id}">
+    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
+    <a href="/">Home</a>
 
-    <label>Title:</label><br>
-    <input type="text" th:field="*{title}" required><br><br>
+    <!-- ===== GUEST ===== -->
+    <a href="/books" th:if="${session.loggedUser == null}">Books</a>
+    <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
+    <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
 
-    <label>Author:</label><br>
-    <input type="text" th:field="*{author}" required><br><br>
+    <!-- ===== USER ===== -->
+    <a href="/books"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Books
+    </a>
 
-    <label>Price:</label><br>
-    <input type="number" th:field="*{price}" step="0.01" required><br><br>
+    <a href="/cart"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Cart
+    </a>
 
-    <label>Category:</label><br>
-    <input type="text" th:field="*{category}" required><br><br>
+    <a href="/orders"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Orders
+    </a>
 
-    <label>Stock:</label><br>
-    <input type="number" th:field="*{stock}" required><br><br>
+    <!-- ===== ADMIN ===== -->
+    <a href="/admin/books"
+       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+      Admin Dashboard
+    </a>
 
-    <label>Description:</label><br>
-    <textarea th:field="*{description}" rows="4"></textarea><br><br>
+    <!-- ===== LOGOUT ===== -->
+    <a href="/logout"
+       th:if="${session.loggedUser != null}"
+       class="btn-outline">
+      Logout
+    </a>
 
-    <label>Image URL:</label><br>
-    <input type="text" th:field="*{imageUrl}"><br><br>
+  </nav>
 
-    <button type="submit">Update Book</button>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
 
-</form>
 
-<br>
-<a href="/admin/books">Back to Books</a>
+
+<!-- ================= EDIT BOOK FORM ================= -->
+<div class="form-container">
+
+  <div class="form-card">
+
+    <h2 class="form-title">Edit Book</h2>
+    <p class="form-subtitle">Update the book details below</p>
+
+    <form action="/admin/books/update" method="post" th:object="${book}">
+
+      <!-- IMPORTANT: ID -->
+      <input type="hidden" th:field="*{id}">
+
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" th:field="*{title}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Author</label>
+        <input type="text" th:field="*{author}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <input type="text" th:field="*{category}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Price (₹)</label>
+        <input type="number" step="0.01" th:field="*{price}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Stock</label>
+        <input type="number" th:field="*{stock}" required>
+      </div>
+
+      <div class="form-group">
+        <label>Image URL</label>
+        <input type="text" th:field="*{imageUrl}">
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea th:field="*{description}"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <a href="/admin/books" class="btn-outline">Cancel</a>
+        <button type="submit" class="btn">Update Book</button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+      document.querySelector(".nav-links").classList.toggle("active");
+  }
+</script>
 
 </body>
 </html>

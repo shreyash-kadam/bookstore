@@ -12,9 +12,9 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;   // which user added this item
+    private Long userId;   // User ID
 
-    private Long bookId;   // which book was added
+    private Long bookId;   // Book ID
 
-    private int quantity;  // how many copies of the book
+    private int quantity;  // Quantity added
 }

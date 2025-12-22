@@ -1,37 +1,254 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Books</title>
+  <meta charset="UTF-8">
+  <title>Books | BookStore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    /* ================= PAGE ================= */
+    .page-container {
+        padding: 40px 10%;
+    }
+
+    .page-title {
+        font-size: 32px;
+        margin-bottom: 20px;
+        color: #134e4a;
+    }
+
+    /* ================= SEARCH ================= */
+    .search-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .search-box input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        outline: none;
+    }
+
+    .search-box button {
+        padding: 12px 18px;
+        border-radius: 6px;
+        border: none;
+        background: #0f766e;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    /* ================= BOOK GRID ================= */
+    .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 24px;
+    }
+
+    .book-card {
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s;
+    }
+
+    .book-card:hover {
+        transform: translateY(-6px);
+    }
+
+    /* ================= IMAGE FIX ================= */
+    .book-image {
+        height: 220px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 14px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .book-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+
+    /* ================= BOOK INFO ================= */
+    .book-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .book-author {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+
+    .book-price {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0f766e;
+        margin-bottom: 12px;
+    }
+
+    .book-actions {
+        margin-top: auto;
+    }
+
+    .book-actions a {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    /* ================= EMPTY ================= */
+    .empty {
+        text-align: center;
+        color: #6b7280;
+        margin-top: 40px;
+        font-size: 18px;
+    }
+
+    /* ================= MOBILE FIXES ================= */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .search-box {
+            flex-direction: column;
+        }
+
+        .search-box input,
+        .search-box button {
+            width: 100%;
+        }
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Available Books</h2>
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <div class="logo">📚 BookStore</div>
 
-<form th:action="@{/books/search}" method="get">
-    <input type="text" name="keyword" th:value="${keyword}" placeholder="Search books...">
+  <nav class="nav-links">
+
+    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
+    <a href="/">Home</a>
+
+    <!-- ===== GUEST ===== -->
+    <a href="/books" th:if="${session.loggedUser == null}">Books</a>
+    <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
+    <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
+
+    <!-- ===== USER ===== -->
+    <a href="/books"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Books
+    </a>
+
+    <a href="/cart"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Cart
+    </a>
+
+    <a href="/orders"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Orders
+    </a>
+
+    <!-- ===== ADMIN ===== -->
+    <a href="/admin/books"
+       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+      Admin Dashboard
+    </a>
+
+    <!-- ===== LOGOUT ===== -->
+    <a href="/logout"
+       th:if="${session.loggedUser != null}"
+       class="btn-outline">
+      Logout
+    </a>
+
+  </nav>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
+
+
+
+<!-- ================= CONTENT ================= -->
+<div class="page-container">
+
+  <h2 class="page-title">Available Books</h2>
+
+  <!-- Search -->
+  <form class="search-box" action="/books/search" method="get">
+    <input type="text"
+           name="keyword"
+           placeholder="Search by title, author or category"
+           th:value="${keyword}">
     <button type="submit">Search</button>
-</form>
+  </form>
 
-<br>
+  <!-- Empty State -->
+  <div th:if="${#lists.isEmpty(books)}" class="empty">
+    No books available
+  </div>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Price</th>
-        <th>Category</th>
-        <th>Stock</th>
-    </tr>
+  <!-- Book Grid -->
+  <div class="book-grid" th:if="${!#lists.isEmpty(books)}">
 
-    <tr th:each="book : ${books}">
-        <td th:text="${book.title}"></td>
-        <td th:text="${book.author}"></td>
-        <td th:text="${book.price}"></td>
-        <td th:text="${book.category}"></td>
-        <td th:text="${book.stock}"></td>
-    </tr>
+    <div class="book-card" th:each="book : ${books}">
 
-</table>
+      <div class="book-image">
+        <img th:src="${book.imageUrl != null and !#strings.isEmpty(book.imageUrl) ? book.imageUrl : 'https://via.placeholder.com/300x400?text=Book'}"
+             alt="Book Image">
+      </div>
+
+      <div class="book-title" th:text="${book.title}">Book Title</div>
+      <div class="book-author" th:text="'by ' + ${book.author}">Author</div>
+      <div class="book-price">
+        ₹ <span th:text="${book.price}">0</span>
+      </div>
+
+      <div class="book-actions">
+        <a th:href="@{/cart/add/{id}(id=${book.id})}" class="btn">
+          Add to Cart
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+      document.querySelector(".nav-links").classList.toggle("active");
+  }
+</script>
 
 </body>
 </html>

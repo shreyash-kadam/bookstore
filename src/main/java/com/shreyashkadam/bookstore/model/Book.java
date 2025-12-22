@@ -25,5 +25,5 @@ public class Book {
     @Column(length = 1000)
     private String description;
 
-    private String imageUrl; // optional, for book cover
+    private String imageUrl; // Optional
 }

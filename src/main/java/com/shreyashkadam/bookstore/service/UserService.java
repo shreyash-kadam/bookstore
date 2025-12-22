@@ -2,46 +2,43 @@ package com.shreyashkadam.bookstore.service;
 
 import com.shreyashkadam.bookstore.model.User;
 import com.shreyashkadam.bookstore.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    // Register new user
+    public boolean register(User user) {
 
-    // Register user
-    public User register(User user) {
-
-        // check if email already exists
+        // Check if email already exists
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            return null; // email exists → registration failed
+            return false;
         }
 
-        // encrypt password
+        // Encrypt password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        return userRepository.save(user);
+        userRepository.save(user);
+        return true;
     }
 
-    // Validate login
+    // Login user
     public User login(String email, String rawPassword) {
 
         User user = userRepository.findByEmail(email);
 
-        if (user == null) {
-            return null; // email not found
-        }
+        if (user == null) return null;
 
-        // check password
         if (passwordEncoder.matches(rawPassword, user.getPassword())) {
             return user;
         }
 
-        return null; // wrong password
+        return null;
     }
 }

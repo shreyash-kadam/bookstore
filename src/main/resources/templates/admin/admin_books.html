@@ -1,38 +1,220 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Books</title>
+  <meta charset="UTF-8">
+  <title>Admin | Manage Books</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    .admin-container {
+        padding: 40px 10%;
+    }
+
+    .admin-title {
+        font-size: 32px;
+        margin-bottom: 10px;
+        color: #134e4a;
+    }
+
+    .admin-subtitle {
+        color: #6b7280;
+        margin-bottom: 30px;
+    }
+
+    .admin-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 14px;
+        text-align: left;
+    }
+
+    .admin-table th {
+        background: #f1f5f9;
+        font-weight: 600;
+    }
+
+    .admin-table tr:not(:last-child) {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .price {
+        color: #0f766e;
+        font-weight: 600;
+    }
+
+    .action-links a {
+        margin-right: 10px;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .edit-link {
+        color: #2563eb;
+    }
+
+    .delete-link {
+        color: #dc2626;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 20px;
+        }
+
+        .admin-table thead {
+            display: none;
+        }
+
+        .admin-table tr {
+            display: block;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .admin-table td {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .admin-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #374151;
+        }
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Available Books</h2>
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <div class="logo">📚 BookStore</div>
 
-<!-- Search Form -->
-<form th:action="@{/books/search}" method="get">
-    <input type="text" name="keyword" th:value="${keyword}" placeholder="Search books...">
-    <button type="submit">Search</button>
-</form>
+  <nav class="nav-links">
 
-<br>
+    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
+    <a href="/">Home</a>
 
-<table border="1" cellpadding="8">
+    <!-- ===== GUEST ===== -->
+    <a href="/books" th:if="${session.loggedUser == null}">Books</a>
+    <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
+    <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
+
+    <!-- ===== USER ===== -->
+    <a href="/books"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Books
+    </a>
+
+    <a href="/cart"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Cart
+    </a>
+
+    <a href="/orders"
+       th:if="${session.loggedUser != null and session.role == 'USER'}">
+      Orders
+    </a>
+
+    <!-- ===== ADMIN ===== -->
+    <a href="/admin/books"
+       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+      Admin Dashboard
+    </a>
+
+    <!-- ===== LOGOUT ===== -->
+    <a href="/logout"
+       th:if="${session.loggedUser != null}"
+       class="btn-outline">
+      Logout
+    </a>
+
+  </nav>
+
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
+
+
+
+<!-- ================= ADMIN CONTENT ================= -->
+<div class="admin-container">
+
+  <h2 class="admin-title">Manage Books</h2>
+  <p class="admin-subtitle">Add, edit or remove books from the store</p>
+
+  <div class="admin-actions">
+    <a href="/admin/books/add" class="btn">+ Add New Book</a>
+  </div>
+
+  <table class="admin-table">
+
+    <thead>
     <tr>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Price</th>
-        <th>Category</th>
-        <th>Stock</th>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Author</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th>Actions</th>
     </tr>
+    </thead>
 
+    <tbody>
     <tr th:each="book : ${books}">
-        <td th:text="${book.title}"></td>
-        <td th:text="${book.author}"></td>
-        <td th:text="${book.price}"></td>
-        <td th:text="${book.category}"></td>
-        <td th:text="${book.stock}"></td>
+      <td data-label="ID" th:text="${book.id}">1</td>
+      <td data-label="Title" th:text="${book.title}">Book Title</td>
+      <td data-label="Author" th:text="${book.author}">Author</td>
+      <td data-label="Price" class="price">
+        ₹ <span th:text="${book.price}">0</span>
+      </td>
+      <td data-label="Stock" th:text="${book.stock}">10</td>
+      <td data-label="Actions" class="action-links">
+        <a class="edit-link"
+           th:href="@{/admin/books/edit/{id}(id=${book.id})}">
+          Edit
+        </a>
+        <a class="delete-link"
+           th:href="@{/admin/books/delete/{id}(id=${book.id})}"
+           onclick="return confirm('Are you sure you want to delete this book?')">
+          Delete
+        </a>
+      </td>
     </tr>
+    </tbody>
 
-</table>
+  </table>
+
+</div>
+
+<script>
+  function toggleMenu() {
+      document.querySelector(".nav-links").classList.toggle("active");
+  }
+</script>
 
 </body>
 </html>

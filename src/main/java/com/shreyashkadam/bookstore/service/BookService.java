@@ -2,29 +2,28 @@ package com.shreyashkadam.bookstore.service;
 
 import com.shreyashkadam.bookstore.model.Book;
 import com.shreyashkadam.bookstore.repository.BookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
-    // Add or Update Book
+    // Add or Update book
     public Book saveBook(Book book) {
         return bookRepository.save(book);
     }
 
-    // Get all books
+    // Fetch all books
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
 
-    // Get book by id
+    // Find book by ID
     public Book getBookById(Long id) {
         return bookRepository.findById(id).orElse(null);
     }
@@ -34,7 +33,7 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    // Search books by keyword across title, author, category
+    // Search books
     public List<Book> searchBooks(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getAllBooks();
@@ -42,13 +41,11 @@ public class BookService {
 
         keyword = keyword.trim();
 
-        // Search in multiple fields
-        List<Book> byTitle = bookRepository.findByTitleContainingIgnoreCase(keyword);
-        List<Book> byAuthor = bookRepository.findByAuthorContainingIgnoreCase(keyword);
-        List<Book> byCategory = bookRepository.findByCategoryContainingIgnoreCase(keyword);
+        List<Book> titleMatches = bookRepository.findByTitleContainingIgnoreCase(keyword);
+        List<Book> authorMatches = bookRepository.findByAuthorContainingIgnoreCase(keyword);
+        List<Book> categoryMatches = bookRepository.findByCategoryContainingIgnoreCase(keyword);
 
-        // Combine results
-        return List.of(byTitle, byAuthor, byCategory)
+        return List.of(titleMatches, authorMatches, categoryMatches)
                 .stream()
                 .flatMap(List::stream)
                 .distinct()
