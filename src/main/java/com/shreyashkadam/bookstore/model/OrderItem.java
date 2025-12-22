@@ -12,11 +12,11 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long orderId;   // Which order this belongs to
+    private Long orderId;   // Links to Order table
 
-    private Long bookId;    // Which book was purchased
+    private Long bookId;    // Book purchased
 
-    private int quantity;   // Number of copies
+    private int quantity;
 
-    private double price;   // Price per copy at the time of order
+    private double price;   // Price per item at purchase time
 }

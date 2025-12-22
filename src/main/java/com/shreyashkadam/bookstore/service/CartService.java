@@ -4,47 +4,46 @@ import com.shreyashkadam.bookstore.model.Book;
 import com.shreyashkadam.bookstore.model.CartItem;
 import com.shreyashkadam.bookstore.repository.BookRepository;
 import com.shreyashkadam.bookstore.repository.CartRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CartService {
 
-    @Autowired
-    private CartRepository cartRepository;
+    private final CartRepository cartRepository;
+    private final BookRepository bookRepository;
 
-    @Autowired
-    private BookRepository bookRepository;
-
-    // Add a book to the user's cart
+    // Add item to cart
     public void addToCart(Long userId, Long bookId) {
 
-        CartItem existingItem = cartRepository.findByUserIdAndBookId(userId, bookId);
+        CartItem existing = cartRepository.findByUserIdAndBookId(userId, bookId);
 
-        if (existingItem != null) {
-            // If already in cart, increase quantity
-            existingItem.setQuantity(existingItem.getQuantity() + 1);
-            cartRepository.save(existingItem);
-        } else {
-            // Else create new cart item
-            CartItem newItem = new CartItem();
-            newItem.setUserId(userId);
-            newItem.setBookId(bookId);
-            newItem.setQuantity(1);
-            cartRepository.save(newItem);
+        if (existing != null) {
+            existing.setQuantity(existing.getQuantity() + 1);
+            cartRepository.save(existing);
+            return;
         }
+
+        CartItem newItem = new CartItem();
+        newItem.setUserId(userId);
+        newItem.setBookId(bookId);
+        newItem.setQuantity(1);
+
+        cartRepository.save(newItem);
     }
 
-    // Get all items of a user
+    // Get all cart items for a user
     public List<CartItem> getUserCart(Long userId) {
         return cartRepository.findByUserId(userId);
     }
 
-    // Update item quantity
+    // Update quantity
     public void updateQuantity(Long cartItemId, int quantity) {
         CartItem item = cartRepository.findById(cartItemId).orElse(null);
+
         if (item != null) {
             item.setQuantity(quantity);
             cartRepository.save(item);
@@ -56,13 +55,13 @@ public class CartService {
         cartRepository.deleteById(cartItemId);
     }
 
-    // Calculate cart total
+    // Calculate total cart amount
     public double calculateTotal(Long userId) {
-        List<CartItem> cartItems = getUserCart(userId);
 
+        List<CartItem> items = getUserCart(userId);
         double total = 0;
 
-        for (CartItem item : cartItems) {
+        for (CartItem item : items) {
             Book book = bookRepository.findById(item.getBookId()).orElse(null);
             if (book != null) {
                 total += book.getPrice() * item.getQuantity();

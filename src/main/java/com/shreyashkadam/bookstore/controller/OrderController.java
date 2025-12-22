@@ -2,47 +2,43 @@ package com.shreyashkadam.bookstore.controller;
 
 import com.shreyashkadam.bookstore.model.Order;
 import com.shreyashkadam.bookstore.model.OrderItem;
+import com.shreyashkadam.bookstore.model.User;
 import com.shreyashkadam.bookstore.service.OrderService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
-    // Checkout → Place Order
+    // Checkout → create order
     @GetMapping("/order/checkout")
     public String checkout(HttpSession session) {
 
-        Long userId = (Long) session.getAttribute("userId");
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
-        if (userId == null) {
-            return "redirect:/login";
-        }
-
-        Order order = orderService.placeOrder(userId);
-
-        if (order == null) {
-            return "redirect:/cart";
-        }
+        Order order = orderService.placeOrder(user.getId());
 
         return "redirect:/order/" + order.getId();
     }
 
-    // Order Summary Page
-    @GetMapping("/order/{orderId}")
-    public String orderSummary(@PathVariable Long orderId, Model model, HttpSession session) {
 
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return "redirect:/login";
+    // Order summary page
+    @GetMapping("/order/{orderId}")
+    public String orderSummary(@PathVariable Long orderId,
+                               HttpSession session,
+                               Model model) {
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
         List<OrderItem> items = orderService.getOrderItems(orderId);
 
@@ -52,17 +48,16 @@ public class OrderController {
         return "order_summary";
     }
 
-    // Order History Page
+    // User order history
     @GetMapping("/orders")
-    public String orderHistory(Model model, HttpSession session) {
+    public String orderHistory(HttpSession session, Model model) {
 
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return "redirect:/login";
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
 
-        List<Order> orders = orderService.getUserOrders(userId);
+        List<Order> orders = orderService.getUserOrders(user.getId());
 
         model.addAttribute("orders", orders);
-
         return "order_history";
     }
 }

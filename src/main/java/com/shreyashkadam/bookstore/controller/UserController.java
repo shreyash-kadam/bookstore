@@ -3,31 +3,34 @@ package com.shreyashkadam.bookstore.controller;
 import com.shreyashkadam.bookstore.model.User;
 import com.shreyashkadam.bookstore.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    // Show register page
+    // ===================== REGISTER =====================
+
+    // Show register page (PUBLIC)
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
+    public String showRegisterPage(Model model) {
         model.addAttribute("user", new User());
         return "register";
     }
 
-    // Handle register form submission
+    // Handle register form
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user, Model model) {
+    public String registerUser(@ModelAttribute("user") User user,
+                               Model model) {
 
-        User savedUser = userService.register(user);
+        boolean registered = userService.register(user);
 
-        if (savedUser == null) {
+        if (!registered) {
             model.addAttribute("error", "Email already exists");
             return "register";
         }
@@ -35,9 +38,11 @@ public class UserController {
         return "redirect:/login";
     }
 
-    // Show login page
+    // ===================== LOGIN =====================
+
+    // Show login page (PUBLIC)
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginPage() {
         return "login";
     }
 
@@ -45,8 +50,8 @@ public class UserController {
     @PostMapping("/login")
     public String loginUser(@RequestParam String email,
                             @RequestParam String password,
-                            HttpSession session,
-                            Model model) {
+                            Model model,
+                            HttpSession session) {
 
         User user = userService.login(email, password);
 
@@ -55,12 +60,17 @@ public class UserController {
             return "login";
         }
 
+        // 🔥 Store required session data
         session.setAttribute("loggedUser", user);
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("role", user.getRole());
 
-        return "redirect:/";
+        // ✅ Redirect to books page after login
+        return "redirect:/books";
     }
 
-    // Logout
+    // ===================== LOGOUT =====================
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
