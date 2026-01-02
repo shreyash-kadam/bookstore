@@ -1,3 +1,4 @@
+
 package com.shreyashkadam.bookstore.controller;
 
 import org.springframework.stereotype.Controller;
@@ -8,6 +9,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "index"; // ✅ public landing page
+        return "index"; //  public landing page
     }
 }

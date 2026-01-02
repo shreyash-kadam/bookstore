@@ -1,3 +1,4 @@
+
 package com.shreyashkadam.bookstore.service;
 
 import com.shreyashkadam.bookstore.model.Book;
@@ -24,8 +25,8 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
     private final BookRepository bookRepository;
-    private final UserRepository userRepository;   // ✅ ADDED
-    private final EmailService emailService;       // ✅ ADDED
+    private final UserRepository userRepository;   // ADDED
+    private final EmailService emailService;       //  ADDED
 
     // Place order (checkout)
     public Order placeOrder(Long userId) {
@@ -72,11 +73,11 @@ public class OrderService {
         // Clear cart
         cartRepository.deleteAll(cartItems);
 
-        // ✅ FETCH USER EMAIL FROM DATABASE
+        //  FETCH USER EMAIL FROM DATABASE
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // ✅ SEND EMAIL RECEIPT
+        //  SEND EMAIL RECEIPT
         emailService.sendOrderReceipt(
                 user.getEmail(),
                 order,

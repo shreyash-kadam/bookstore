@@ -1,3 +1,4 @@
+
 package com.shreyashkadam.bookstore.model;
 
 import jakarta.persistence.*;

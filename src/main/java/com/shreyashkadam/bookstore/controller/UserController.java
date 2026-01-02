@@ -1,3 +1,4 @@
+
 package com.shreyashkadam.bookstore.controller;
 
 import com.shreyashkadam.bookstore.model.User;
@@ -65,7 +66,7 @@ public class UserController {
         session.setAttribute("userId", user.getId());
         session.setAttribute("role", user.getRole());
 
-        // ✅ Redirect to books page after login
+        //  Redirect to books page after login
         return "redirect:/books";
     }
 

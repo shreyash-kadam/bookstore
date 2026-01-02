@@ -1,3 +1,4 @@
+
 package com.shreyashkadam.bookstore.controller;
 
 import com.shreyashkadam.bookstore.model.Book;
@@ -38,14 +39,14 @@ public class BookController {
     @GetMapping("/admin/books")
     public String viewAdminBooks(Model model) {
         model.addAttribute("books", bookService.getAllBooks());
-        return "admin/admin_books"; // ✅ FIXED PATH
+        return "admin/admin_books"; //  FIXED PATH
     }
 
     // Admin: Show add book form
     @GetMapping("/admin/books/add")
     public String showAddBookForm(Model model) {
         model.addAttribute("book", new Book());
-        return "admin/add_book"; // ✅ FIXED PATH
+        return "admin/add_book"; //  FIXED PATH
     }
 
     // Admin: Save new book
@@ -60,7 +61,7 @@ public class BookController {
     public String showEditBookForm(@PathVariable Long id, Model model) {
         Book book = bookService.getBookById(id);
         model.addAttribute("book", book);
-        return "admin/edit_book"; // ✅ FIXED PATH
+        return "admin/edit_book"; //  FIXED PATH
     }
 
     // Admin: Update book

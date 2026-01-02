@@ -12,6 +12,18 @@
   <link rel="stylesheet" href="/style.css">
 
   <style>
+    /* ================= GLOBAL ================= */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background: #f8fafc;
+    }
+
     /* ================= PAGE ================= */
     .page-container {
         padding: 40px 10%;
@@ -19,28 +31,29 @@
 
     .page-title {
         font-size: 32px;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         color: #134e4a;
     }
 
     /* ================= SEARCH ================= */
     .search-box {
         display: flex;
-        gap: 10px;
-        margin-bottom: 30px;
+        gap: 12px;
+        margin-bottom: 35px;
     }
 
     .search-box input {
         flex: 1;
         padding: 12px;
-        border-radius: 6px;
+        border-radius: 8px;
         border: 1px solid #d1d5db;
         outline: none;
+        font-size: 15px;
     }
 
     .search-box button {
-        padding: 12px 18px;
-        border-radius: 6px;
+        padding: 12px 22px;
+        border-radius: 8px;
         border: none;
         background: #0f766e;
         color: #fff;
@@ -48,50 +61,56 @@
         font-weight: 500;
     }
 
-    /* ================= BOOK GRID ================= */
+    /* ================= GRID ================= */
     .book-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 24px;
+        gap: 28px;
     }
 
+    /* ================= CARD ================= */
     .book-card {
         background: #ffffff;
-        border-radius: 14px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        padding: 18px;
         display: flex;
         flex-direction: column;
-        transition: transform 0.3s;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .book-card:hover {
         transform: translateY(-6px);
+        box-shadow: 0 14px 30px rgba(0,0,0,0.12);
     }
 
-    /* ================= IMAGE FIX ================= */
+    /* ================= IMAGE ================= */
     .book-image {
-        height: 220px;
-        border-radius: 10px;
+        width: 100%;
+        height: 230px;
+        border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 14px;
-        background: #f1f5f9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background: #e5e7eb;
+        margin-bottom: 15px;
     }
 
     .book-image img {
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
+        transition: transform 0.3s ease;
     }
 
-    /* ================= BOOK INFO ================= */
+    .book-card:hover .book-image img {
+        transform: scale(1.05);
+    }
+
+    /* ================= INFO ================= */
     .book-title {
         font-size: 18px;
         font-weight: 600;
         margin-bottom: 6px;
+        color: #111827;
     }
 
     .book-author {
@@ -104,9 +123,10 @@
         font-size: 16px;
         font-weight: 600;
         color: #0f766e;
-        margin-bottom: 12px;
+        margin-bottom: 15px;
     }
 
+    /* ================= ACTION ================= */
     .book-actions {
         margin-top: auto;
     }
@@ -114,18 +134,28 @@
     .book-actions a {
         display: block;
         text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        background: #0f766e;
+        color: #fff;
         text-decoration: none;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+
+    .book-actions a:hover {
+        background: #115e59;
     }
 
     /* ================= EMPTY ================= */
     .empty {
         text-align: center;
+        font-size: 18px;
         color: #6b7280;
         margin-top: 40px;
-        font-size: 18px;
     }
 
-    /* ================= MOBILE FIXES ================= */
+    /* ================= MOBILE ================= */
     @media (max-width: 768px) {
         .page-container {
             padding: 20px;
@@ -152,50 +182,25 @@
   <div class="logo">📚 BookStore</div>
 
   <nav class="nav-links">
-
-    <!-- ===== HOME (ALWAYS VISIBLE) ===== -->
     <a href="/">Home</a>
 
-    <!-- ===== GUEST ===== -->
     <a href="/books" th:if="${session.loggedUser == null}">Books</a>
     <a href="/login" th:if="${session.loggedUser == null}" class="btn-outline">Login</a>
     <a href="/register" th:if="${session.loggedUser == null}" class="btn">Register</a>
 
-    <!-- ===== USER ===== -->
-    <a href="/books"
-       th:if="${session.loggedUser != null and session.role == 'USER'}">
-      Books
-    </a>
+    <a href="/books" th:if="${session.loggedUser != null and session.role == 'USER'}">Books</a>
+    <a href="/cart" th:if="${session.loggedUser != null and session.role == 'USER'}">Cart</a>
+    <a href="/orders" th:if="${session.loggedUser != null and session.role == 'USER'}">Orders</a>
 
-    <a href="/cart"
-       th:if="${session.loggedUser != null and session.role == 'USER'}">
-      Cart
-    </a>
-
-    <a href="/orders"
-       th:if="${session.loggedUser != null and session.role == 'USER'}">
-      Orders
-    </a>
-
-    <!-- ===== ADMIN ===== -->
-    <a href="/admin/books"
-       th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
+    <a href="/admin/books" th:if="${session.loggedUser != null and session.role == 'ADMIN'}">
       Admin Dashboard
     </a>
 
-    <!-- ===== LOGOUT ===== -->
-    <a href="/logout"
-       th:if="${session.loggedUser != null}"
-       class="btn-outline">
-      Logout
-    </a>
-
+    <a href="/logout" th:if="${session.loggedUser != null}" class="btn-outline">Logout</a>
   </nav>
 
   <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 </header>
-
-
 
 <!-- ================= CONTENT ================= -->
 <div class="page-container">
@@ -211,18 +216,20 @@
     <button type="submit">Search</button>
   </form>
 
-  <!-- Empty State -->
+  <!-- Empty -->
   <div th:if="${#lists.isEmpty(books)}" class="empty">
     No books available
   </div>
 
-  <!-- Book Grid -->
+  <!-- Books -->
   <div class="book-grid" th:if="${!#lists.isEmpty(books)}">
 
     <div class="book-card" th:each="book : ${books}">
 
       <div class="book-image">
-        <img th:src="${book.imageUrl != null and !#strings.isEmpty(book.imageUrl) ? book.imageUrl : 'https://via.placeholder.com/300x400?text=Book'}"
+        <img th:src="${book.imageUrl != null and !#strings.isEmpty(book.imageUrl)
+                    ? book.imageUrl
+                    : 'https://via.placeholder.com/300x400?text=Book'}"
              alt="Book Image">
       </div>
 
@@ -233,7 +240,7 @@
       </div>
 
       <div class="book-actions">
-        <a th:href="@{/cart/add/{id}(id=${book.id})}" class="btn">
+        <a th:href="@{/cart/add/{id}(id=${book.id})}">
           Add to Cart
         </a>
       </div>
